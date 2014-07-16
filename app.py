@@ -27,6 +27,11 @@ def admin_logger():
     if level:
         logger.setLevel(getattr(logging, level))
     
+    msg = 'Setting log level to: %s'
+    logger.debug(msg, level)
+    logger.info(msg, level)
+    logger.warning(msg, level)
+
     return logging.getLevelName(logger.level),200
         
 
@@ -48,11 +53,9 @@ def configure_logging(app):
     
     file_handler = logging.handlers.RotatingFileHandler(logpath, maxBytes=1000, backupCount=100)
     file_handler.setFormatter(formatter)
-    file_handler.setLevel(level)
 
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
-    stream_handler.setLevel(level)
 
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
@@ -68,4 +71,4 @@ def ensure_dir(path):
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True)
+    app.run(debug=False)
