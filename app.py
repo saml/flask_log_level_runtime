@@ -49,9 +49,9 @@ def configure_logging(app):
     level = logging.WARNING
     logger = app.logger
 
-    formatter = logging.Formatter('%(asctime)s %(levelname)s - %(message)s (%(process)d %(pathname)s : %(lineno)s)')
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(process)d - %(message)s (%(pathname)s : %(lineno)s)')
     
-    file_handler = logging.handlers.RotatingFileHandler(logpath, maxBytes=1000, backupCount=100)
+    file_handler = logging.handlers.RotatingFileHandler(logpath, maxBytes=5*1000*1000, backupCount=100)
     file_handler.setFormatter(formatter)
 
     stream_handler = logging.StreamHandler()

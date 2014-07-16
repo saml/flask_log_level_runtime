@@ -8,7 +8,7 @@ logdir="${UWSGI_LOG_DIR:-/tmp}"
 piddir="${UWSGI_PID_DIR:-/tmp}"
 callable="${UWSGI_CALLABLE:-main}"
 module="${UWSGI_MODULE:-wsgi}"
-processes="${UWSGI_PROCESSES:-8}"   #same as cpu cores. or +1 or +2.
+processes="${UWSGI_PROCESSES:-2}"   #same as cpu cores. or +1 or +2.
 listen="${UWSGI_LISTEN:-100}"      #sysctl -w net.core.somaxconn=5000
 timeout="${UWSGI_TIMEOUT:-60}"
 
