@@ -43,11 +43,15 @@ def configure_logging(app):
     ensure_dir(logpath)
     level = logging.WARNING
     logger = app.logger
+
+    formatter = logging.Formatter('%(asctime)s %(levelname)s - %(message)s (%(process)d %(pathname)s : %(lineno)s)')
     
     file_handler = logging.handlers.RotatingFileHandler(logpath, maxBytes=1000, backupCount=100)
+    file_handler.setFormatter(formatter)
     file_handler.setLevel(level)
 
     stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
     stream_handler.setLevel(level)
 
     logger.addHandler(file_handler)
