@@ -4,6 +4,8 @@ import logging.handlers
 
 from flask import Flask, Blueprint, current_app, request
 
+UWSGI_SIG_SET_LOG_LEVEL = 42
+
 bp = Blueprint('default', __name__)
 
 @bp.route('/')
@@ -23,28 +25,20 @@ def admin_logger():
         return logging.getLevelName(logger.level),200
 
     # PUT
-    level = request.args.get('level')
-    if level:
-        logger.setLevel(getattr(logging, level))
-    
-    msg = 'Setting log level to: %s'
-    logger.debug(msg, level)
-    logger.info(msg, level)
-    logger.warning(msg, level)
+    set_log_level()
+    if is_uwsgi():
+        uwsgi.signal(UWSGI_SIG_SET_LOG_LEVEL) # notify uwsgi workers
 
     return logging.getLevelName(logger.level),200
         
 def is_uwsgi():
     return request.environ.get('uwsgi.version') is not None
 
-
 def get_runtime_env():
     if is_uwsgi():
         return 'uwsgi'
     else:
         return 'local development server'
-
-
 
 def create_app():
     app = Flask(__name__)
@@ -76,6 +70,34 @@ def ensure_dir(path):
     dirpath = os.path.dirname(path)
     if not os.path.exists(dirpath):
         os.makedirs(dirpath)
+
+def parse_log_level():
+    'log level from current request'
+    return getattr(logging, request.args.get('level'))
+
+def set_log_level(sig=None):
+    'set log level from current request'
+    logger = current_app.logger
+
+    if sig is not None and sig != UWSGI_SIG_SET_LOG_LEVEL:
+        logger.info('refusing to set log level on signal: %s', sig)
+        return
+
+    level = parse_log_level()
+    level_name = logging.getLevelName(level)
+    msg = 'Setting log level to: %s'
+
+    logger.debug(msg, level_name)
+    logger.info(msg, level_name)
+    logger.warning(msg, level_name)
+
+    logger.setLevel(level)
+
+try:
+    import uwsgi
+    uwsgi.register_signal(UWSGI_SIG_SET_LOG_LEVEL, 'workers', set_log_level) 
+except ImportError:
+    pass
 
 
 if __name__ == '__main__':
