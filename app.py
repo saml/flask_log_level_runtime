@@ -9,7 +9,7 @@ bp = Blueprint('default', __name__)
 @bp.route('/')
 def index():
     logger = current_app.logger
-    msg = 'hello'
+    msg = 'hello from: '+get_runtime_env()
     logger.debug(msg)
     logger.info(msg)
     logger.warning(msg)
@@ -34,6 +34,15 @@ def admin_logger():
 
     return logging.getLevelName(logger.level),200
         
+def is_uwsgi():
+    return request.environ.get('uwsgi.version') is not None
+
+
+def get_runtime_env():
+    if is_uwsgi():
+        return 'uwsgi'
+    else:
+        return 'local development server'
 
 
 
